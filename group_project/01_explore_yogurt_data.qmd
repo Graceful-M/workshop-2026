@@ -1,0 +1,196 @@
+---
+title: "Group 1 — Yogurt Study Data Exploration"
+author: "Workshop Participant"
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+---
+
+## Overview
+
+This document explores the **Yogurt study dataset** (Group A / Group 1).
+The study investigates how eating yogurt affects the vaginal microbiome.
+Participants were split into two **arms**: a **yogurt** group and an
+**unchanged diet** group. Samples were taken at two **time points**:
+baseline and after antibiotics.
+
+The data is split across four CSV files, linked by participant IDs
+(`pid`) and sample IDs (`sample_id`).
+
+---
+
+## Load libraries
+
+```{r}
+#| message: false
+library(tidyverse)
+library(knitr)
+```
+
+---
+
+## File 1 — Sample IDs (`00_sample_ids_yogurt.csv`)
+
+Each row is **one sample** from one participant at one time point.
+
+| Column | Meaning |
+|--------|---------|
+| `pid` | Participant ID (e.g. `pid_25`). Links to the metadata file. |
+| `time_point` | When the sample was taken — `baseline` (before study) or `after_antibiotic` (after a course of antibiotics). |
+| `arm` | Which group the participant was assigned to — `yogurt` or `unchanged_diet`. |
+| `sample_id` | Unique lab sample identifier (e.g. `YOG002`). Links to qPCR and Luminex results. |
+
+```{r}
+sample_ids <- read_csv("../data/group_a_yogurt/00_sample_ids_yogurt.csv")
+
+glimpse(sample_ids)
+```
+
+```{r}
+# Count samples by time point and arm
+sample_ids |> 
+  count(time_point, arm)
+```
+
+---
+
+## File 2 — Participant Metadata (`01_participant_metadata_yogurt.csv`)
+
+Each row is **one participant** with their demographic and health info.
+
+| Column | Meaning |
+|--------|---------|
+| `pid` | Participant ID. Links to the sample IDs file. |
+| `arm` | Which group — `yogurt` or `unchanged_diet`. |
+| `days_since_last_sex` | Days since the participant last had sex (integer). |
+| `birth_control` | Type of birth control — `no hormonal birth control` or `Depoprovera` (a hormonal injectable). |
+| `age` | Age in years. |
+| `education` | Education level (self-reported, categorical). |
+| `sex` | Sex of the participant (all recorded as `female`). |
+
+```{r}
+metadata <- read_csv("../data/group_a_yogurt/01_participant_metadata_yogurt.csv")
+
+glimpse(metadata)
+```
+
+```{r}
+# Age distribution by arm
+ggplot(metadata, aes(x = arm, y = age, fill = arm)) +
+  geom_boxplot() +
+  labs(title = "Age distribution by study arm", y = "Age (years)", x = NULL) +
+  theme_minimal()
+```
+
+```{r}
+# Birth control by arm
+metadata |> 
+  count(arm, birth_control) |> 
+  kable()
+```
+
+---
+
+## File 3 — qPCR Results (`02_qpcr_results_yogurt.csv`)
+
+Each row is **one sample** with qPCR measurements of bacterial DNA.
+qPCR (quantitative PCR) is a lab technique that measures how much of a
+specific bacterium's DNA is present in a sample.
+
+| Column | Meaning |
+|--------|---------|
+| `sample_id` | Lab sample ID. Links to the sample IDs file. |
+| `qpcr_bacteria` | Amount of **total bacterial DNA** detected. |
+| `qpcr_crispatus` | Amount of *Lactobacillus crispatus* DNA (a "good" bacteria linked to vaginal health). |
+| `qpcr_iners` | Amount of *Lactobacillus iners* DNA (another *Lactobacillus* species, considered less protective). |
+
+```{r}
+qpcr <- read_csv("../data/group_a_yogurt/02_qpcr_results_yogurt.csv")
+
+glimpse(qpcr)
+```
+
+```{r}
+# Join qPCR results with sample info so we can compare arms
+qpcr_with_arm <- sample_ids |> 
+  left_join(qpcr, by = "sample_id")
+
+# Compare total bacteria by arm and time point
+ggplot(qpcr_with_arm, aes(x = arm, y = qpcr_bacteria, fill = arm)) +
+  geom_boxplot() +
+  facet_wrap(vars(time_point)) +
+  scale_y_log10() +
+  labs(title = "Total bacterial load by arm and time point",
+       y = "Total bacteria (log scale)", x = NULL) +
+  theme_minimal()
+```
+
+```{r}
+# Compare L. crispatus vs L. iners by arm
+# Higher crispatus / lower iners is generally considered healthier
+qpcr_with_arm |> 
+  pivot_longer(cols = c(qpcr_crispatus, qpcr_iners),
+               names_to = "bacteria",
+               values_to = "count") |> 
+  ggplot(aes(x = arm, y = count + 1, fill = bacteria)) +
+  geom_boxplot() +
+  facet_wrap(vars(time_point)) +
+  scale_y_log10() +
+  labs(title = "L. crispatus vs L. iners by arm and time point",
+       y = "Bacterial DNA amount (+1, log scale)", x = NULL) +
+  theme_minimal()
+```
+
+---
+
+## File 4 — Luminex Results (`03_luminex_results_yogurt.csv`)
+
+Each row is **one cytokine measurement** for one sample. This is "long"
+format — each sample appears in multiple rows, one per cytokine measured.
+Luminex is a lab technique that measures multiple proteins (cytokines) at
+once. Cytokines are signalling molecules that the immune system uses to
+communicate — higher levels can mean more inflammation.
+
+| Column | Meaning |
+|--------|---------|
+| `sample_id` | Lab sample ID. Links to the sample IDs file. |
+| `cytokine` | Which cytokine was measured (e.g. `IL-1a`, `TNFa`, `IL-8`). 10 different cytokines in total. |
+| `conc` | Concentration of that cytokine in the sample (units as provided by the lab). |
+| `limits` | Whether the measurement was `within limits` (reliable) or `out of range` (below the test's detection limit). |
+
+```{r}
+luminex <- read_csv("../data/group_a_yogurt/03_luminex_results_yogurt.csv")
+
+glimpse(luminex)
+```
+
+```{r}
+# List all cytokines measured
+unique(luminex$cytokine)
+```
+
+```{r}
+# How many measurements are within vs out of range?
+luminex |> 
+  count(limits)
+```
+
+```{r}
+# Join Luminex results with sample info
+luminex_with_arm <- sample_ids |> 
+  left_join(luminex, by = "sample_id")
+
+# Look at a few key inflammatory cytokines across arms
+key_cytokines <- c("IL-1b", "IL-6", "IL-8", "TNFa")
+
+luminex_with_arm |> 
+  filter(cytokine %in% key_cytokines, limits == "within limits") |> 
+  ggplot(aes(x = arm, y = conc, fill = arm)) +
+  geom_boxplot() +
+  facet_grid(cytokine ~ time_point, scales = "free_y") +
+  labs(title = "Key inflammatory cytokines by arm and time point",
+       y = "Concentration", x = NULL) +
+  theme_minimal()
+```

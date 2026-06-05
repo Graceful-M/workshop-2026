@@ -1,0 +1,43 @@
+---
+title: "My Learning Project"
+format: html
+---
+
+Welcome to your new project! 🎉
+
+This is a fresh notebook where you can experiment, practice, and build
+whatever you like. The workshop notebooks are still in `notebooks/` if you
+ever want to refer back to them.
+
+## Load some data
+
+Let's load the tidyverse and a built-in dataset to play with:
+
+```{r}
+library(tidyverse)
+
+# Palmer penguins — a classic starter dataset
+library(palmerpenguins)
+head(penguins)
+```
+
+## Try something
+
+Edit the code below or ask me to add something new!
+
+```{r}
+penguins |>
+  drop_na() |>
+  ggplot(aes(x = species, y = body_mass_g, fill = species)) +
+  geom_boxplot() +
+  labs(
+    title = "Penguin body mass by species",
+    x = "Species",
+    y = "Body mass (g)"
+  )
+```
+
+---
+
+> **Tip:** If you want to use a dataset you upload, put the file in the
+> `data/` folder and read it with `read_csv("data/your-file.csv")`.
