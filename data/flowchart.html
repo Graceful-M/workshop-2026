@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choosing a Statistical Model in Biostatistics — Flowchart</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f0f0f0;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    max-width: 1100px;
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    padding: 30px;
+  }
+  .flowchart-wrapper {
+    text-align: center;
+    margin: 20px 0;
+  }
+  .flowchart-wrapper svg,
+  .flowchart-wrapper img,
+  .flowchart-wrapper object {
+    width: 100%;
+    max-width: 1100px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+  .info {
+    margin-top: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #1a5276;
+  }
+  .info h3 { margin-top: 0; color: #1a5276; margin-bottom: 10px; }
+  .info ol { padding-left: 20px; font-size: 14px; line-height: 1.9; }
+  .print-tip {
+    margin-top: 15px;
+    padding: 15px 20px;
+    background: #eaf2f8;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .print-tip strong { color: #1a5276; }
+  @media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; padding: 20px; max-width: 100%; }
+    .info, .print-tip { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center; color: #1a5276; font-size: 24px; margin-bottom: 5px;">
+      Choosing a Statistical Model in Biostatistics
+    </h1>
+    <p style="text-align: center; color: #5D6D7E; font-size: 14px; margin-bottom: 20px;">
+      Start at the top. Follow the arrows based on your data type and research question.
+    </p>
+
+    <div class="flowchart-wrapper">
+      <object data="flowchart.svg" type="image/svg+xml" style="width: 100%; max-width: 1100px;">
+        <img src="flowchart.svg" alt="Biostatistics Model Selection Flowchart" style="width: 100%; max-width: 1100px;">
+      </object>
+    </div>
+
+    <div class="info">
+      <h3>How to use this flowchart</h3>
+      <ol>
+        <li><strong>Start at the top</strong> — identify what <em>type</em> of outcome variable you have.</li>
+        <li><strong>Follow the arrows</strong> — each decision node asks a yes/no or multiple-choice question about your data.</li>
+        <li><strong>Check assumptions</strong> — the yellow diamond-shaped nodes remind you to verify normality, equal variance, etc.</li>
+        <li><strong>Pick the model</strong> — dark blue nodes show the recommended statistical test or model.</li>
+        <li><strong>When in doubt, go non-parametric</strong> — Wilcoxon, Mann-Whitney, Kruskal-Wallis, and Spearman are safer with small or non-normal samples.</li>
+      </ol>
+    </div>
+
+    <div class="print-tip">
+      <strong>📌 Pin this on your wall!</strong>
+      Press <strong>Ctrl+P</strong> (or <strong>Cmd+P</strong> on Mac) to print.
+      For best results, print in landscape orientation and select "fit to page."
+      The standalone SVG is in <code>data/flowchart.svg</code>.
+    </div>
+  </div>
+</body>
+</html>

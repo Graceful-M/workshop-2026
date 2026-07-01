@@ -1,0 +1,40 @@
+---
+title: "Flowchart: Choosing a Statistical Model in Biostatistics"
+format:
+  html:
+    embed-resources: true
+    css: custom.css
+  pdf: default
+---
+
+```{r include=FALSE}
+# This Quarto document embeds the SVG flowchart and provides
+# a nice printable version for pinning on the wall.
+```
+
+<div style="text-align: center; margin-top: 20px;">
+  <object data="flowchart.svg" type="image/svg+xml" 
+          style="width: 100%; max-width: 1100px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <img src="flowchart.svg" alt="Biostatistics Model Selection Flowchart" style="width: 100%; max-width: 1100px;" />
+  </object>
+</div>
+
+<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #1a5276;">
+  <h3 style="margin-top: 0; color: #1a5276;">How to use this flowchart</h3>
+  <ol style="font-size: 14px; line-height: 1.8;">
+    <li><strong>Start at the top</strong> — identify what <em>type</em> of outcome variable you have.</li>
+    <li><strong>Follow the arrows</strong> — each decision node asks a yes/no or multiple-choice question about your data.</li>
+    <li><strong>Check assumptions</strong> — the yellow nodes remind you to verify normality, equal variance, etc.</li>
+    <li><strong>Pick the model</strong> — dark blue nodes show the recommended statistical test or model.</li>
+    <li><strong>When in doubt, go non-parametric</strong> — Wilcoxon, Mann-Whitney, Kruskal-Wallis, and Spearman are safer with small or non-normal samples.</li>
+  </ol>
+</div>
+
+<div style="margin-top: 20px; padding: 15px; background: #eaf2f8; border-radius: 8px;">
+  <h4 style="margin-top: 0; color: #1a5276;">📌 Pin this on your wall!</h4>
+  <p style="font-size: 13px;">
+    The SVG file is in <code>data/flowchart.svg</code> — open it in any browser, then 
+    <strong>File → Print</strong> (or Ctrl+P) to print it as a poster. 
+    You can also find <code>data/flowchart.pdf</code> for a ready-to-print PDF version.
+  </p>
+</div>

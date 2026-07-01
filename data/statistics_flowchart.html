@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistical Analysis Flow Diagram</title>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({ startOnLoad: true, theme: 'default', themeVariables: { fontSize: '14px' } });
+</script>
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #fafafa;
+    color: #333;
+  }
+  h1 { color: #01579b; border-bottom: 2px solid #01579b; padding-bottom: 8px; }
+  .diagram-container {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow-x: auto;
+  }
+  .note {
+    background: #fff8e1;
+    border-left: 4px solid #f57c00;
+    padding: 12px 16px;
+    margin-top: 20px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .legend-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<h1>📊 Statistical Analysis Flow Diagram</h1>
+<p><em>Improved methodology for TN Mahlangu's Masters Proposal — Multiplex FISH / PMA-qPCR study</em></p>
+
+<div class="diagram-container">
+<pre class="mermaid" style="text-align: center;">
+flowchart TD
+    A["📋 Raw Data Collected"] --> B{"Data Type?"}
+    
+    B -->|"🧬 PMA-qPCR<br/>(viable counts)"| C["Descriptive Stats<br/>Median ± IQR"]
+    B -->|"🖼️ FISH Images"| D["Image Processing<br/>(ImageJ + QuPath)"]
+    B -->|"📋 Clinical Data"| E["Cohort Characteristics"]
+    
+    D --> F["Extract Metrics<br/>• Abundance<br/>• Fluorescence intensity<br/>• Adherence score<br/>• Spatial clustering"]
+    
+    C & F --> G{"Primary Research Question:<br/>Do the two groups<br/>(responsive vs resistant)<br/>differ?"}
+    
+    G -->|"Cross-sectional<br/>(single visit)"| H["Mann-Whitney U test<br/>+ Benjamini-Hochberg<br/>FDR correction"]
+    G -->|"Longitudinal<br/>(visits: 0, 8, 16, 24)"| I["Mixed-Effects Model<br/>Group × Time interaction<br/>Random intercept per subject"]
+    
+    H --> J{"Significant<br/>difference<br/>found?"}
+    I --> J
+    
+    J -->|"Yes"| K["Post-hoc pairwise<br/>comparisons<br/>(Dunn's test)"]
+    J -->|"No"| L["Report effect sizes<br/>+ 95% confidence<br/>intervals"]
+    
+    C & F --> M{"Secondary Question:<br/>Are FISH metrics related<br/>to viable bacterial counts?"}
+    
+    M --> N["Spearman rank<br/>correlation"]
+    N --> O["Partial Spearman<br/>(controlling for<br/>confounders)"]
+    
+    C & F --> P{"Exploratory:<br/>What are the overall<br/>community patterns?"}
+    P --> Q["Principal Component<br/>Analysis (PCA)<br/>on all microbial vars"]
+    Q --> R["Permutational MANOVA<br/>(adonis2)<br/>testing group separation"]
+
+    style A fill:#e1f5fe,stroke:#01579b,color:#000
+    style B fill:#fff3e0,stroke:#e65100,color:#000
+    style C fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style D fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style E fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style F fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style G fill:#fff3e0,stroke:#e65100,color:#000
+    style H fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style I fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style J fill:#fff3e0,stroke:#e65100,color:#000
+    style K fill:#e1bee7,stroke:#7b1fa2,color:#000
+    style L fill:#e1bee7,stroke:#7b1fa2,color:#000
+    style M fill:#fff3e0,stroke:#e65100,color:#000
+    style N fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style O fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style P fill:#fff3e0,stroke:#e65100,color:#000
+    style Q fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style R fill:#c8e6c9,stroke:#2e7d32,color:#000
+</pre>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-box" style="background:#e1f5fe;border:1px solid #01579b;"></div> Starting point</div>
+  <div class="legend-item"><div class="legend-box" style="background:#fff3e0;border:1px solid #e65100;"></div> Decision / question</div>
+  <div class="legend-item"><div class="legend-box" style="background:#c8e6c9;border:1px solid #2e7d32;"></div> Analysis method</div>
+  <div class="legend-item"><div class="legend-box" style="background:#e1bee7;border:1px solid #7b1fa2;"></div> Result / output</div>
+</div>
+
+<div class="note">
+<strong>💡 How to read this diagram:</strong> Start at the top (Raw Data Collected).
+Follow the arrows based on data type. Each orange diamond is a research question;
+each green box is a statistical method used to answer it. The purple boxes at the
+bottom show the final outputs (results or effect sizes).
+</div>
+
+<p style="margin-top:20px;font-size:13px;color:#888;">
+<strong>File reference:</strong> See <code>Improved_Statistics_Methodology_TN_Mahlangu.md</code> for full written explanations.
+</p>
+</body>
+</html>

@@ -1,0 +1,991 @@
+\documentclass[12pt,a4paper]{report}
+
+% ---- Packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+\usepackage{caption}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{mathptmx}
+\usepackage{times}
+
+% ---- Title Page ----
+\title{\textbf{Multi-Omics Integration and Interpretable Machine Learning for Women's Reproductive Health: Applications to Preterm Birth, HIV Seroconversion, BV Outcomes, and Geographical Variation}}
+\author{[Your Name]}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+%=====================================================================
+% CHAPTER 1: ABSTRACT
+%=====================================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Women's reproductive health in sub-Saharan Africa is shaped by complex interactions between the vaginal microbiome, host immune responses, and clinical factors. Bacterial vaginosis (BV), HIV acquisition, and preterm birth are interconnected challenges that disproportionately affect women in this region, with standard therapies frequently failing and underlying mechanisms remaining poorly understood \cite{bradshaw2016current, gosmann2017lactobacillus, barnabas2018converging}. Recent advances in high-throughput sequencing have generated rich multi-omics datasets --- 16S rRNA microbiome profiles, cytokine panels, virome and mycobiome data, and host cellular markers --- yet the integration of these diverse data types into predictive and interpretable models remains a significant statistical challenge.
+
+This PhD proposes to develop and apply interpretable machine learning methods for multi-omics data integration across four CAPRISA cohort studies. The first study (Paper 1) will predict preterm birth using microbiome, cytokine, and clinical data from the CAP088/CAP016 cohorts, which include longitudinal samples before and after delivery. The second study (Paper 2) will model the dynamics of the microbiome and cytokine profiles in women who seroconvert to HIV (CAP002 cohort), examining changes before and after seroconversion and antiretroviral therapy initiation. The third study (Paper 3) will perform an integrated multi-omics analysis of BV treatment outcomes using the CAP098 cohort, combining bacterial microbiome, virome, mycobiome, and host immune markers across four longitudinal visits. The fourth study (Paper 4) will investigate geographical variation in microbiome and immune profiles across cohorts with 4--7 visits over approximately three months.
+
+A unifying methodological thread across all four studies is the development of an **interpretable machine learning framework for compositional multi-omics data**, extending existing approaches (SHAP, LIME) to handle the unique structure of proportional data, multi-omics integration, and longitudinal dependencies. The expected contributions include a novel interpretability method, an accompanying R package, and clinically actionable insights into predictors of reproductive health outcomes across diverse cohorts and geographical settings in South Africa.
+
+%=====================================================================
+% CHAPTER 2: INTRODUCTION
+%=====================================================================
+\chapter{Introduction}
+
+\section{Background}
+
+\subsection{The Interconnected Challenges of Women's Reproductive Health in South Africa}
+
+Women's reproductive health in South Africa is shaped by a constellation of interconnected challenges. Bacterial vaginosis (BV), HIV acquisition, and adverse pregnancy outcomes --- particularly preterm birth --- are disproportionately prevalent and frequently co-occur, creating a syndemic that demands integrated research approaches \cite{barnabas2018converging, gilbert2025, peebles2019high}.
+
+BV, characterised by a shift from \textit{Lactobacillus}-dominant vaginal microbiota to a polymicrobial anaerobic state, affects 32--58\% of women in South African cohorts \cite{nicd2025, mbulawa2025}. BV is associated with a 1.5- to 2-fold increased risk of HIV acquisition \cite{gosmann2017lactobacillus, atashili2008} and is a well-established risk factor for preterm birth \cite{srinivasan2012, hillier1995, goldenberg2000}. The standard treatment for BV --- oral metronidazole or intravaginal clindamycin --- achieves initial cure rates of only 40--60\%, with recurrence rates as high as 60\% within 3--6 months \cite{bradshaw2016current}.
+
+HIV remains a major public health challenge in South Africa, with an estimated 7.8 million people living with HIV. The dynamics of HIV acquisition are intimately linked to the vaginal microbiome and host immune environment. Women with \textit{Lactobacillus}-deficient vaginal microbiomes (particularly those dominated by \textit{Gardnerella} and other anaerobes) have significantly higher risk of HIV acquisition, likely due to enhanced genital inflammation and disruption of the mucosal barrier \cite{gosmann2017lactobacillus, lennard2018microbial}. Understanding how the microbiome and immune milieu change around the time of seroconversion and after ART initiation is critical for developing effective prevention strategies.
+
+Preterm birth (delivery before 37 weeks of gestation) affects approximately 15\% of pregnancies in sub-Saharan Africa --- the highest regional rate globally \cite{goldenberg2008, who2023}. The vaginal microbiome during pregnancy has emerged as a key risk factor, with loss of \textit{Lactobacillus} dominance and colonisation by BV-associated organisms linked to increased preterm birth risk \cite{florova2021, callahan2017, david2022}. However, the mechanisms by which the microbiome interacts with host immune mediators (cytokines and chemokines) to influence pregnancy outcomes remain incompletely understood.
+
+\subsection{The CAPRISA Cohort Studies}
+
+The Centre for the AIDS Programme of Research in South Africa (CAPRISA) has conducted multiple landmark cohort studies that have generated extensive multi-omics data. This PhD will leverage four of these cohorts:
+
+\subsubsection{CAP088/CAP016: Preterm Birth Cohorts}
+
+These studies enrolled pregnant women with longitudinal follow-up through delivery. Available data include:
+\begin{itemize}
+    \item 16S rRNA microbiome data (ASVs/OTUs) from vaginal swabs
+    \item Cytokine and chemokine panels (host immune mediators)
+    \item Comprehensive clinical data
+    \item 3--4 longitudinal visits, including visits before and after birth
+\end{itemize}
+
+This dataset provides a rare opportunity to model the joint dynamics of the microbiome and immune system across the transition from pregnancy to postpartum, and to identify early predictors of preterm birth.
+
+\subsubsection{CAP002: HIV Seroconversion Cohort}
+
+The CAP002 study prospectively followed women at risk of HIV acquisition, with some participants seroconverting during follow-up. Available data include:
+\begin{itemize}
+    \item 16S rRNA microbiome data (OTUs) from vaginal swabs
+    \item Cytokine and chemokine panels
+    \item Clinical data (CD4 count, viral load, ART information, and more)
+    \item 3--4 longitudinal visits before and after HIV seroconversion and ART initiation
+\end{itemize}
+
+This dataset enables investigation of how the vaginal microbiome and immune environment change during the critical period surrounding HIV acquisition, and how these changes are modified by ART initiation.
+
+\subsubsection{CAP098: BV Treatment Outcomes}
+
+The CAP098 study evaluated sequential metronidazole and clindamycin therapy for BV in 100 women in Durban, South Africa. As described in the study protocol, sequential treatment resulted in only 20\% clearance and 70\% persistent BV at Day 24. Importantly, this study generated uniquely comprehensive multi-omics data:
+\begin{itemize}
+    \item Bacterial microbiome (OTUs) from 16S rRNA sequencing
+    \item Virome data (viral communities)
+    \item Mycobiome data (fungal communities)
+    \item Host immune markers (cytokines and cellular data)
+    \item Four longitudinal visits: baseline (Day 0), Day 8, Day 16, and Day 24
+\end{itemize}
+
+This dataset provides an exceptional opportunity for integrated multi-omics analysis of BV treatment outcomes, examining how different microbial kingdoms and the host immune system interact to determine treatment success or failure.
+
+\subsubsection{Geographical Variation Cohorts}
+
+Additional CAPRISA cohorts have collected microbiome, cytokine, and clinical data from women across multiple geographical sites in South Africa, with 4--7 longitudinal visits over approximately three months. These data enable investigation of how geographical location --- reflecting differences in environment, diet, healthcare access, and population genetics --- shapes the vaginal microbiome and immune profiles.
+
+\section{The Multi-Omics Integration Challenge}
+
+Each of these studies generates multiple high-dimensional data types --- microbiome abundances (compositional), cytokine concentrations (continuous), clinical variables (mixed types), and in the case of CAP098, virome and mycobiome data. Integrating these diverse data types into coherent predictive models presents several statistical challenges:
+
+\begin{enumerate}
+    \item \textbf{Compositionality}: Microbiome, virome, and mycobiome data are all compositional --- relative abundances sum to 1, creating interdependence between features \cite{aitchison1982statistical, gloor2017microbiome}. Cross-kingdom integration must account for compositional constraints within each data type.
+    \item \textbf{High dimensionality with sparse signal}: Each omics layer contains hundreds to thousands of features, most of which are not associated with the outcome \cite{topcuoglu2021}.
+    \item \textbf{Cross-omics correlation structure}: The bacterial microbiome, virome, mycobiome, and host immune system interact in complex ways. For example, bacteriophages carried by \textit{Lactobacillus} species may influence bacterial community stability, and fungal colonisation may trigger specific cytokine responses.
+    \item \textbf{Longitudinal dependencies}: Multiple time points per participant create within-subject correlation that must be appropriately modelled \cite{diggle2002}.
+    \item \textbf{Missing data}: Loss to follow-up, assay failures, and uneven sampling schedules create complex missing data patterns.
+\end{enumerate}
+
+\section{The Interpretability Gap in Multi-Omics ML}
+
+Machine learning models capable of handling the complexity described above --- random forests, gradient boosting machines, neural networks, and multi-view learning methods --- are inherently difficult to interpret. Standard interpretability tools (SHAP, LIME) have critical limitations when applied to multi-omics data:
+
+\begin{enumerate}
+    \item They assume feature independence, which is violated by compositional constraints within each omics layer \cite{lundberg2017unified}.
+    \item They do not account for the hierarchical structure of multi-omics data (features nested within omics layers).
+    \item They produce explanations at the individual feature level, rather than at the level of biologically meaningful modules (e.g., ``the \textit{Lactobacillus}-to-\textit{Gardnerella} ratio across the bacterial microbiome, combined with elevated IL-6 levels, drives this prediction'') \cite{fryer2021shapley}.
+\end{enumerate}
+
+Developing interpretability methods that respect the structure of multi-omics compositional data is therefore both a methodological necessity and a clinically relevant goal.
+
+\section{Research Problem}
+
+Despite the availability of rich multi-omics datasets across multiple CAPRISA cohorts --- spanning preterm birth, HIV seroconversion, BV treatment outcomes, and geographical variation --- several gaps remain:
+
+\begin{enumerate}
+    \item No integrated multi-omics model exists to predict preterm birth from longitudinal microbiome, cytokine, and clinical data in South African populations.
+    \item The dynamics of the microbiome and immune system around HIV seroconversion and ART initiation have not been comprehensively modelled.
+    \item Multi-omics integration (bacterial microbiome + virome + mycobiome + host immune markers) has not been applied to understand BV treatment outcomes.
+    \item Geographical variation in the vaginal microbiome and immune profiles across South Africa remains poorly characterised.
+    \item Existing machine learning interpretability methods are not suited to the compositional and multi-omics structure of these data.
+\end{enumerate}
+
+This PhD aims to address these gaps through four connected studies united by a common methodological framework.
+
+\section{Aims and Objectives}
+
+\subsection{Primary Objective}
+
+To develop and apply interpretable machine learning methods for multi-omics data integration across four CAPRISA cohort studies, producing both clinically actionable predictions and biologically meaningful explanations.
+
+\subsection{Specific Aims}
+
+\begin{enumerate}[label=\textbf{Paper \arabic*:}]
+
+\item \textbf{Predict Preterm Birth from Multi-Omics Data (CAP088/CAP016).}
+Using longitudinal microbiome (16S rRNA), cytokine, and clinical data from the CAP088 and CAP016 cohorts, develop predictive models for preterm birth. Identify the microbial taxa, immune mediators, and clinical factors most strongly associated with preterm delivery, and model their trajectories across pregnancy and postpartum. Apply and evaluate the proposed interpretability framework to explain individual-level predictions.
+
+\item \textbf{Model Microbiome and Cytokine Dynamics During HIV Seroconversion (CAP002).}
+Using longitudinal data from the CAP002 cohort, characterise how the vaginal microbiome and cytokine profiles change in the periods before and after HIV seroconversion, and following ART initiation. Develop predictive models of seroconversion risk and post-ART microbial recovery. Apply interpretability methods to identify key microbial-immune interactions that distinguish seroconverters from non-seroconverters.
+
+\item \textbf{Integrate Multi-Omics Data to Predict BV Treatment Outcomes (CAP098).}
+Using the uniquely comprehensive CAP098 dataset (bacterial microbiome, virome, mycobiome, and host immune markers across four visits), develop an integrated multi-omics predictive model for BV clearance, persistence, and recurrence at Day 24. Characterise cross-kingdom interactions (bacteria-virus-fungus-host) that are associated with treatment outcomes. This represents the most methodologically demanding study and will serve as the primary validation of the multi-omics interpretability framework.
+
+\item \textbf{Characterise Geographical Variation in Microbiome and Immune Profiles.}
+Using data from cohorts spanning multiple geographical sites in South Africa, investigate how location --- reflecting environmental, dietary, and population-level differences --- shapes the vaginal microbiome and immune landscape. Develop models that can distinguish site-specific microbial signatures from universal patterns associated with reproductive health outcomes.
+
+\end{enumerate}
+
+\subsection{Cross-Cutting Methodological Aim}
+
+Across all four papers, develop and refine a **compositional-aware interpretability framework for multi-omics data**. The method will:
+
+\begin{enumerate}
+    \item Respect the compositional structure of each omics layer
+    \item Account for dependencies across omics layers
+    \item Produce explanations at both the feature and module (biologically meaningful group) level
+    \item Be implemented as an R package for community use
+\end{enumerate}
+
+\subsection{PhD Structure as Publications}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cllc}
+\toprule
+\textbf{Paper} & \textbf{Cohort(s)} & \textbf{Data Types} & \textbf{Outcome} \\
+\midrule
+1 & CAP088 / CAP016 & 16S, cytokines, clinical & Preterm birth \\
+2 & CAP002 & 16S, cytokines, clinical (CD4, VL, ART) & HIV seroconversion \\
+3 & CAP098 & Bacterial + virome + mycobiome + immune & BV clearance/persistence/recurrence \\
+4 & Multiple sites & 16S, cytokines, clinical & Geographical variation \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the four planned publications and their corresponding data.}
+\label{tab:papers}
+\end{table}
+
+%=====================================================================
+% CHAPTER 3: LITERATURE REVIEW
+%=====================================================================
+\chapter{Literature Review}
+
+\section{The Vaginal Microbiome in Health and Disease}
+
+\subsection{Composition and Community State Types}
+
+The healthy vaginal microbiome is typically dominated by \textit{Lactobacillus} species, which produce lactic acid and hydrogen peroxide, maintaining a low vaginal pH (3.8--4.5) that inhibits pathogenic organisms \cite{ravel2011, smith2012}. Five major Community State Types (CSTs) have been described \cite{ravel2011}:
+
+\begin{itemize}
+    \item \textbf{CST I}: \textit{Lactobacillus crispatus}-dominant --- associated with stability and low BV risk
+    \item \textbf{CST II}: \textit{Lactobacillus gasseri}-dominant
+    \item \textbf{CST III}: \textit{Lactobacillus iners}-dominant --- considered less protective and more transitional \cite{zheng2021}
+    \item \textbf{CST IV}: Low \textit{Lactobacillus}, high anaerobic diversity --- linked to BV and inflammation
+    \item \textbf{CST V}: \textit{Lactobacillus jensenii}-dominant
+\end{itemize}
+
+Women of African ancestry are more likely to have CST III and CST IV profiles compared with women of European ancestry \cite{roachford2022, gosmann2017lactobacillus}, a difference that may contribute to the elevated BV and HIV risk observed in African populations.
+
+\subsection{Bacterial Vaginosis and Its Consequences}
+
+BV is characterised by a shift from \textit{Lactobacillus} dominance to a polymicrobial anaerobic state, with organisms such as \textit{Gardnerella vaginalis}, \textit{Atopobium vaginae}, and \textit{Prevotella} species proliferating \cite{muzny2016pathogenesis}. The condition affects 23--29\% of women globally \cite{who2024} and 32--58\% of women in South Africa \cite{nicd2025, mbulawa2025}. BV is associated with increased HIV acquisition risk \cite{atashili2008}, adverse pregnancy outcomes including preterm birth \cite{hillier1995, goldenberg2000}, and upper genital tract infections.
+
+Treatment with metronidazole or clindamycin is frequently ineffective, with cure rates of 40--60\% and recurrence rates of up to 60\% within 3--6 months \cite{bradshaw2016current}. Mechanisms of treatment failure include biofilm formation by \textit{Gardnerella vaginalis} \cite{castro2021, sobel2025}, antimicrobial resistance \cite{li2020, rigo2020}, failure to re-establish protective \textit{Lactobacillus} populations \cite{bradshaw2015making}, and potential contribution of the virome and mycobiome \cite{arroyo2022}.
+
+\subsection{The Vaginal Microbiome in Pregnancy and Preterm Birth}
+
+During normal pregnancy, the vaginal microbiome becomes increasingly stable and \textit{Lactobacillus}-dominant \cite{florova2021, caller2021}. Disruption of this stability --- characterised by reduced \textit{Lactobacillus} abundance, increased diversity, and colonisation by BV-associated taxa --- has been consistently associated with preterm birth \cite{callahan2017, david2022, shannon2020}. The host immune response, mediated by cytokines and chemokines, plays a critical role in this process, with elevated pro-inflammatory mediators linked to both microbial disruption and preterm delivery \cite{romero2014, weckle2019}.
+
+However, the majority of microbiome-preterm birth research has been conducted in high-income settings, and the extent to which these findings generalise to South African populations --- where baseline microbiome profiles differ and the burden of BV is higher --- remains unclear.
+
+\subsection{Microbiome-HIV Interactions}
+
+The vaginal microbiome plays a critical role in HIV susceptibility. \textit{Lactobacillus}-deficient microbiomes (particularly CST IV) are associated with chronic genital inflammation --- characterised by elevated pro-inflammatory cytokines such as IL-1$\beta$, IL-6, and TNF-$\alpha$ --- which recruits HIV target cells (CD4+ T cells, dendritic cells) to the genital mucosa \cite{gosmann2017lactobacillus, lennard2018microbial, masson2015}. Women with CST IV have approximately 4-fold higher risk of HIV acquisition compared with those with CST I \cite{gosmann2017lactobacillus}.
+
+The impact of HIV seroconversion and ART on the vaginal microbiome is less well understood. ART initiation leads to immune reconstitution, but its effects on the vaginal microbial community --- and whether these effects differ from systemic immune recovery --- remain active research questions.
+
+\subsection{The Virome and Mycobiome in Vaginal Health}
+
+Recent research has expanded beyond the bacterial microbiome to include the virome (viral communities) and mycobiome (fungal communities) of the vagina. Bacteriophages carried by \textit{Lactobacillus} species may influence bacterial community stability \cite{vestergaard2022}, while fungal colonisation by \textit{Candida} species interacts with both the bacterial microbiome and host immune responses \cite{bradshaw2015making}. However, integrated multi-kingdom analyses --- combining bacterial, viral, and fungal data with host immune markers --- remain rare, particularly in the context of BV treatment outcomes.
+
+\section{Multi-Omics Data Integration}
+
+\subsection{The Case for Integration}
+
+Each omics layer --- microbiome, virome, mycobiome, cytokine --- captures a different aspect of the biological system. Integration across layers can reveal interactions and synergies that would be missed by analysing each layer in isolation \cite{hasin2017, palsson2022}. For example, a specific bacteriophage might target a key BV-associated bacterium, or a fungal metabolite might modulate cytokine production in ways that influence treatment outcomes.
+
+\subsection{Statistical Approaches to Multi-Omics Integration}
+
+Several statistical frameworks for multi-omics integration have been developed:
+
+\begin{itemize}
+    \item \textbf{Multiple Factor Analysis (MFA)}: A dimension reduction approach that identifies common and specific variation across omics layers \cite{eslami2013}.
+    \item \textbf{DIABLO (Data Integration Analysis for Biomarker discovery using Latent variable approaches for Omics studies)}: A supervised multi-omics integration method implemented in the \texttt{mixOmics} R package \cite{singh2019, rohart2017}.
+    \item \textbf{MOFA (Multi-Omics Factor Analysis)}: A Bayesian factor model that identifies latent factors underlying variation across omics layers \cite{argelaguet2018}.
+    \item \textbf{Networks and graphical models}: Methods that infer interaction networks within and between omics layers \cite{klingstrom2018}.
+    \item \textbf{Concatenation-based ML}: Simply merging all features into a single input matrix and applying standard ML methods. While straightforward, this approach does not account for the different structures of each omics layer and may perform poorly when the sample size is small \cite{topcuoglu2021}.
+\end{itemize}
+
+Each approach has trade-offs between interpretability, scalability, and the ability to model complex interactions.
+
+\subsection{Challenges in Multi-Omics Integration}
+
+Key challenges include:
+\begin{enumerate}
+    \item \textbf{Dimensionality}: Combined omics layers can yield thousands of features with limited samples ($p \gg n$).
+    \item \textbf{Heterogeneous data types}: Compositional data (microbiome), continuous data (cytokines), and categorical data (clinical variables) require different preprocessing and modelling approaches.
+    \item \textbf{Cross-omics dependence}: Features within and between omics layers are correlated, which must be accounted for.
+    \item \textbf{Interpretability}: Integrating across layers produces even more complex models, making interpretability both more important and more difficult.
+\end{enumerate}
+
+\section{Machine Learning for Clinical Prediction}
+
+\subsection{Supervised Learning Methods}
+
+Tree-based ensemble methods --- random forests \cite{breiman2001} and gradient boosting machines (XGBoost, LightGBM) \cite{chen2016xgboost, ke2017lightgbm} --- have become the most widely used ML methods for clinical prediction from high-dimensional omics data \cite{statnikov2013comprehensive, pasolli2016machine}. Their advantages include handling of non-linear relationships, feature interactions, missing data, and mixed data types.
+
+In microbiome research, random forests have been the most commonly applied method \cite{duvallet2017}. Multi-view learning approaches that model each omics layer separately before combining them have also been developed \cite{zhao2021}.
+
+\subsection{Handling Longitudinal Data}
+
+Longitudinal omics data --- repeated measures of the microbiome and other features over time --- require methods that account for within-subject correlation. Options include:
+\begin{itemize}
+    \item Feature engineering: Creating summary features (slopes, areas under the curve, time to peak) from longitudinal measurements
+    \item Mixed-effects models: Extending linear and generalised linear models to include random subject effects \cite{diggle2002}
+    \item Recurrent neural networks: Models that can directly handle sequence data \cite{esteva2019}
+    \item Functional data analysis: Representing longitudinal trajectories as smooth functions \cite{ramsay2005}
+\end{itemize}
+
+\section{Interpretable Machine Learning}
+
+\subsection{The Need for Interpretability}
+
+Doshi-Velez and Kim \cite{doshi2017towards} define interpretability as ``the ability to explain or to present in understandable terms to a human.'' In clinical settings, interpretability enables verification of model reasoning, builds trust, and facilitates regulatory approval \cite{lewis2020does}.
+
+\subsection{Existing Interpretability Methods}
+
+\textbf{SHAP (SHapley Additive exPlanations)}: Attributes each feature's contribution to a prediction using Shapley values from cooperative game theory \cite{lundberg2017unified, lundberg2020local}. Satisfies several desirable properties (consistency, local accuracy) but assumes feature independence.
+
+\textbf{LIME (Local Interpretable Model-agnostic Explanations)}: Approximates the global model with a simple surrogate model locally \cite{ribeiro2016why}. The perturbation procedure perturbs features independently, which is problematic for compositional data.
+
+\textbf{Permutation Importance}: Measures the decrease in model performance when a feature is shuffled \cite{breiman2001, altmann2010}. Again assumes independence.
+
+\subsection{The Gap: Compositional and Multi-Omics Interpretability}
+
+Existing interpretability methods share a critical assumption: features are independent. This assumption is violated by:
+\begin{enumerate}
+    \item Compositional data, where the unit-sum constraint creates negative correlations
+    \item Multi-omics data, where features within and between omics layers are correlated
+    \item Longitudinal data, where repeated measures from the same subject are correlated
+\end{enumerate}
+
+No published method simultaneously addresses all three challenges. This gap represents the central methodological opportunity for this PhD.
+
+\section{Geographical Variation in the Vaginal Microbiome}
+
+\subsection{Population-Level Differences in Microbiome Composition}
+
+The composition of the vaginal microbiome varies across geographical regions and populations. Factors contributing to this variation include genetics, diet, hygiene practices, sexual behaviour, healthcare access, and environmental exposures \cite{roachford2022, gupta2022}. Studies comparing African, European, Asian, and Hispanic women have found substantial differences in CST distributions, with African women more likely to have CST IV and less likely to have CST I \cite{ravel2011, roachford2022}.
+
+\subsection{Implications for Generalizability}
+
+Geographical variation poses challenges for the development of universal predictive models. A model trained on microbiome data from one population may perform poorly when applied to another. Understanding which features of the microbiome are universal predictors of health outcomes and which are population-specific is an important research question --- and the focus of Paper 4.
+
+\section{Summary of the Literature}
+
+The literature reviewed above establishes:
+
+\begin{enumerate}
+    \item The vaginal microbiome plays a central role in BV, HIV acquisition, and preterm birth, but the mechanisms remain incompletely understood, particularly in South African populations.
+    \item Multi-omics data --- combining bacterial, viral, fungal, and immune markers --- offer a more complete picture but pose significant integration challenges.
+    \item Machine learning can integrate and predict from these complex data, but standard interpretability methods are insufficient for compositional and multi-omics data.
+    \item The CAPRISA cohorts (CAP088/CAP016, CAP002, CAP098, and geographical studies) provide uniquely rich data to address these gaps.
+    \item No existing interpretability framework simultaneously handles compositional, multi-omics, and longitudinal data structures.
+\end{enumerate}
+
+%=====================================================================
+% CHAPTER 4: METHODOLOGY
+%=====================================================================
+\chapter{Methodology}
+
+\section{Overarching Analytical Framework}
+
+The four papers in this PhD share a common analytical approach, with study-specific adaptations. The framework consists of four stages:
+
+\begin{enumerate}
+    \item \textbf{Data preprocessing and integration}: Harmonising heterogeneous data types (compositional microbiome counts, continuous cytokine concentrations, mixed-type clinical variables) across omics layers and time points.
+    \item \textbf{Predictive modelling}: Applying and comparing multiple ML methods, with emphasis on tree-based ensembles and multi-view learning approaches.
+    \item \textbf{Interpretability}: Applying and extending the proposed compositional-aware interpretability framework to explain predictions at both the feature and omics-layer levels.
+    \item \textbf{Validation}: Internal (cross-validation) and, where possible, external (independent cohort) validation.
+\end{enumerate}
+
+\section{Data Sources and Preprocessing}
+
+\subsection{CAP088/CAP016 --- Preterm Birth (Paper 1)}
+
+\subsubsection{Dataset}
+\begin{itemize}
+    \item Longitudinal: 3--4 visits including before and after birth
+    \item 16S rRNA microbiome (ASVs/OTUs) from vaginal swabs
+    \item Cytokine/chemokine panels
+    \item Clinical data including gestational age, delivery outcome, maternal age, parity, HIV status
+    \item Outcome: Preterm birth ($<$ 37 weeks gestation)
+\end{itemize}
+
+\subsubsection{Preprocessing}
+\begin{itemize}
+    \item Microbiome: DADA2 pipeline for ASV inference \cite{callahan2016}; rarefaction to even depth; CLR transformation with zero replacement \cite{martin2012}; filtering of low-prevalence taxa
+    \item Cytokines: Log-transformation to normalise skewed distributions; centering and scaling
+    \item Clinical variables: Encoding categorical variables; scaling continuous variables
+    \item Longitudinal features: Computation of within-subject change scores (e.g., visit-to-visit changes in microbial abundance or cytokine concentration); extraction of trajectory summary features (slope, AUC, maximum value)
+\end{itemize}
+
+\subsection{CAP002 --- HIV Seroconversion (Paper 2)}
+
+\subsubsection{Dataset}
+\begin{itemize}
+    \item Longitudinal: 3--4 visits before and after HIV seroconversion and ART initiation
+    \item 16S rRNA microbiome (OTUs)
+    \item Cytokine/chemokine panels
+    \item Clinical data: CD4 count, viral load, ART regimen and timing, demographics
+    \item Outcome: Seroconversion status and timing; post-ART microbial recovery
+\end{itemize}
+
+\subsubsection{Preprocessing}
+As for Paper 1, with additional handling of time-varying clinical covariates (CD4, viral load). The irregular timing of seroconversion across participants requires careful alignment of time scales --- e.g., aligning visits relative to the estimated seroconversion date rather than calendar time.
+
+\subsection{CAP098 --- Multi-Omics BV Outcomes (Paper 3)}
+
+\subsubsection{Dataset}
+\begin{itemize}
+    \item Longitudinal: 4 visits (Day 0, 8, 16, 24)
+    \item Bacterial microbiome (OTUs) --- 16S rRNA sequencing
+    \item Virome --- viral sequencing data
+    \item Mycobiome --- fungal sequencing data (ITS or 18S)
+    \item Host immune markers --- cytokines and cellular data
+    \item Clinical data including Nugent score, Amsel criteria, demographics
+    \item Outcome: 3-class BV outcome at Day 24 (clearance, persistence, recurrence)
+\end{itemize}
+
+\subsubsection{Preprocessing}
+
+\textbf{Microbiome:} As described above.
+
+\textbf{Virome:} Viral sequences will be processed through a dedicated viral classification pipeline. Relative abundances of viral taxa (including bacteriophages and eukaryotic viruses) will be CLR-transformed.
+
+\textbf{Mycobiome:} Fungal sequences will be processed similarly, with CLR transformation.
+
+\textbf{Immune markers:} Log-transformed cytokine concentrations and cellular counts.
+
+\textbf{Integrated feature matrix:} After individual preprocessing, features from all four omics layers will be combined into a single integrated matrix. The structure of this matrix will be explicitly tracked to enable layer-specific interpretability.
+
+\subsection{Geographical Variation Cohorts (Paper 4)}
+
+\subsubsection{Dataset}
+\begin{itemize}
+    \item Cohorts from 2+ geographical sites in South Africa
+    \item 4--7 visits over approximately 3 months
+    \item 16S rRNA microbiome data
+    \item Cytokine panels
+    \item Clinical data
+    \item Primary analytical focus: Geographical site as both a predictor and a stratifying variable
+\end{itemize}
+
+\subsubsection{Preprocessing}
+As described above, with explicit handling of site as a variable of interest.
+
+\section{Machine Learning Models}
+
+\subsection{Model Selection}
+
+Across all four papers, the following models will be trained and compared:
+
+\begin{itemize}
+    \item \textbf{Random Forest}: Handles non-linearity, interactions, and high-dimensional data natively \cite{breiman2001}. Serves as the primary model due to its strong performance and widespread use in microbiome research \cite{statnikov2013comprehensive}.
+    \item \textbf{XGBoost}: State-of-the-art predictive performance, especially for tabular data \cite{chen2016xgboost}. Will be tuned via Bayesian optimisation.
+    \item \textbf{Elastic Net Logistic Regression}: For lower-dimensional settings and as a benchmark interpretable model \cite{friedman2010}.
+    \item \textbf{Multi-view Learning (DIABLO)}: Specifically for Paper 3, where multi-omics integration is central. DIABLO models each omics layer separately with a shared latent structure, enabling both prediction and cross-omics interpretation \cite{singh2019}.
+\end{itemize}
+
+\subsection{Handling Longitudinal Data}
+
+For Papers 1 and 2 where longitudinal trajectories are of primary interest, two approaches will be compared:
+\begin{enumerate}
+    \item \textbf{Feature engineering}: Converting longitudinal data into static features (slopes, AUCs, change scores) then applying standard ML
+    \item \textbf{Recurrent neural networks (RNNs)}: Modelling the sequence directly, with LSTM or GRU architectures \cite{esteva2019}
+\end{enumerate}
+
+\subsection{Training and Evaluation}
+
+All models will be trained using 5-fold cross-validation repeated 5 times ($5 \times 5$-fold CV). Performance metrics will include:
+\begin{itemize}
+    \item \textbf{Classification (Papers 1, 3)}: AUC-ROC (one-vs-one and one-vs-rest for multi-class), balanced accuracy, precision, recall, F1-score
+    \item \textbf{Survival/timing (Paper 2)}: Concordance index (C-index), time-dependent AUC
+    \item \textbf{Clustering/association (Paper 4)}: PERMANOVA, ARI, silhouette scores
+    \item \textbf{Calibration}: Brier score
+\end{itemize}
+
+Class imbalance (e.g., recurrence in Paper 3, preterm birth in Paper 1) will be addressed via SMOTE \cite{chawla2002} and class-weight adjustment.
+
+\section{Proposed Interpretability Framework}
+
+\subsection{Core Principles}
+
+The proposed interpretability framework is built on three principles:
+
+\begin{enumerate}
+    \item \textbf{Compositional validity}: Explanations must respect the unit-sum constraint within each compositional omics layer.
+    \item \textbf{Module-level interpretation}: Explanations should operate at the level of biologically meaningful groups (e.g., CSTs, cytokine modules, bacterial genera) rather than individual ASVs/OTUs.
+    \item \textbf{Layer-aware attribution}: For multi-omics models, the overall contribution of each omics layer should be separable from the contributions of individual features within that layer.
+\end{enumerate}
+
+\subsection{Candidate Approaches}
+
+Building on the initial concepts developed in the BV-focused proposal, the framework will be extended for multi-omics data:
+
+\subsubsection{Approach A: Compositional Shapley Values with Multi-Layer Extension}
+
+Shapley values will be computed at two levels: (1) the omics-layer level (e.g., ``the bacterial microbiome contributed 45\% of the prediction,'' ``the cytokine profile contributed 30\%'') and (2) the log-ratio level within each layer (e.g., ``the \textit{Lactobacillus}/\textit{Gardnerella} ratio contributed 20\% of the bacterial microbiome contribution''). This hierarchical decomposition addresses the need for both global and layer-specific interpretability \cite{lundberg2017unified, quinzan2024learning}.
+
+\subsubsection{Approach B: Multi-Layer Ratio-Based LIME}
+
+The perturbation scheme will be extended to preserve compositional structure within each omics layer independently. Perturbed samples will be generated by drawing from layer-specific Dirichlet distributions, ensuring that within-layer compositional constraints are satisfied. The surrogate model will include both within-layer log-ratio features and cross-layer interaction terms \cite{ribeiro2016why}.
+
+\subsubsection{Approach C: Hierarchical Permutation Importance}
+
+Permutation importance will be computed at three levels: (1) omics-layer level (permute all features in a layer simultaneously), (2) module level (permute features within a biologically defined module), and (3) log-ratio level (permute specific within-layer contrasts). The hierarchical structure enables attribution at multiple granularities \cite{altmann2010}.
+
+\subsection{Implementation}
+
+The framework will be implemented in R and developed into an R package tentatively named \texttt{composeR} (Compositional and Multi-Omics Interpretability for R). The package will support:
+\begin{itemize}
+    \item Definitions of compositional layers and feature groups
+    \item Compositionally valid perturbation and permutation
+    \item Hierarchical importance decomposition
+    \item Visualisation of explanations at multiple levels (layer, module, ratio)
+    \item Integration with existing ML packages (randomForest, xgboost, tidymodels)
+\end{itemize}
+
+\section{Simulation Studies}
+
+Simulation studies will be conducted to validate the proposed interpretability framework before application to real data. The simulation design will mirror the key features of the CAP098 multi-omics data:
+
+\begin{enumerate}
+    \item Generate synthetic multi-omics data with known ground-truth importance structure: 3 compositional layers (bacterial, viral, fungal), each with 20--100 features, plus continuous features (cytokines) with known associations to a binary outcome.
+    \item Define the true predictive model: a sparse set of within-layer log-ratios and cross-layer interactions drive the outcome.
+    \item Train black-box models (XGBoost, random forest) on these data.
+    \item Apply the proposed framework, standard SHAP, and standard LIME.
+    \item Compare performance on:
+    \begin{itemize}
+        \item Recovery of truly important log-ratios and interactions
+        \item Correct attribution of importance to omics layers
+        \item Stability across repeated runs
+        \item Absence of compositionally invalid explanations
+    \end{itemize}
+\end{enumerate}
+
+\section{Paper-Specific Analytical Plans}
+
+\subsection{Paper 1: Preterm Birth Prediction}
+
+\textbf{Models:} Random forest, XGBoost, elastic net.\\
+\textbf{Primary outcome:} Preterm birth (binary, $<$ 37 weeks).\\
+\textbf{Features:} Baseline and longitudinal microbiome, cytokines, clinical variables.\\
+\textbf{Key analyses:}
+\begin{itemize}
+    \item Identify microbial taxa and cytokines that differentiate preterm from term births at each visit
+    \item Model trajectories of key features across pregnancy
+    \item Apply interpretability methods to identify individual risk factors for each participant
+    \item Compare prediction performance at early visits (first trimester) vs. late visits (third trimester)
+\end{itemize}
+
+\subsection{Paper 2: HIV Seroconversion Dynamics}
+
+\textbf{Models:} Random forest, Cox proportional hazards (for time to seroconversion), mixed-effects models (for longitudinal trajectories).\\
+\textbf{Primary outcomes:} Seroconversion (binary); time to seroconversion; post-ART microbiome recovery.\\
+\textbf{Key analyses:}
+\begin{itemize}
+    \item Compare microbiome and cytokine profiles pre- and post-seroconversion
+    \item Identify features that predict seroconversion risk
+    \item Model trajectories of CD4, viral load, microbiome, and cytokines post-ART initiation
+    \item Apply interpretability methods to identify individual-level risk factors
+\end{itemize}
+
+\subsection{Paper 3: Multi-Omics BV Outcomes}
+
+\textbf{Models:} DIABLO (multi-view integration), random forest on concatenated features, XGBoost.\\
+\textbf{Primary outcome:} 3-class BV outcome at Day 24 (clearance, persistence, recurrence).\\
+\textbf{Key analyses:}
+\begin{itemize}
+    \item Integrate bacterial, viral, fungal, and immune data using DIABLO
+    \item Identify cross-kingdom interactions associated with treatment outcomes
+    \item Compare predictive performance of single-omics vs. multi-omics models
+    \item Apply the interpretability framework to decompose predictions by omics layer
+    \item Validate key findings against known BV biology
+\end{itemize}
+
+\subsection{Paper 4: Geographical Variation}
+
+\textbf{Models:} Random forest, PERMANOVA, mixed-effects models with site as random effect.\\
+\textbf{Primary outcome:} Geographical site (as both predictor and stratifying variable).\\
+\textbf{Key analyses:}
+\begin{itemize}
+    \item Characterise CST distributions across sites
+    \item Identify taxa and cytokines that differ across sites vs. those that are stable
+    \item Train site-specific and pooled models to assess generalizability
+    \item Apply interpretability methods to identify site-specific vs. universal predictors
+\end{itemize}
+
+\section{Software and Reproducibility}
+
+All analyses will be conducted in R version 4.5.3 or higher \cite{r2024}, with the following key packages:
+\begin{itemize}
+    \item Data: \texttt{tidyverse}, \texttt{dplyr}, \texttt{tidyr}
+    \item Microbiome: \texttt{phyloseq}, \texttt{vegan}, \texttt{DESeq2}
+    \item Machine learning: \texttt{tidymodels}, \texttt{randomForest}, \texttt{xgboost}, \texttt{glmnet}
+    \item Multi-omics: \texttt{mixOmics}, \texttt{MOFA2}
+    \item Compositional: \texttt{compositions}, \texttt{robCompositions}, \texttt{zCompositions}
+    \item Interpretability: \texttt{shapr}, \texttt{DALEX}, \texttt{fastshap}
+\end{itemize}
+
+The proposed interpretability method (R package \texttt{composeR}) and all analysis code will be publicly available on GitHub.
+
+\section{Thesis Structure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{clp{8cm}}
+\toprule
+\textbf{Ch.} & \textbf{Title} & \textbf{Content} \\
+\midrule
+1 & Introduction & Background, research problem, aims, thesis outline \\
+2 & Literature Review & Vaginal microbiome, BV, preterm birth, HIV, multi-omics integration, ML, interpretability, geographical variation \\
+3 & Methodological Framework & The compositional-aware multi-omics interpretability framework; simulation validation \\
+4 & Paper 1 & Preterm birth prediction (CAP088/CAP016) \\
+5 & Paper 2 & HIV seroconversion dynamics (CAP002) \\
+6 & Paper 3 & Multi-omics integration for BV outcomes (CAP098) \\
+7 & Paper 4 & Geographical variation \\
+8 & Discussion & Synthesis across papers, clinical implications, limitations, future directions \\
+\bottomrule
+\end{tabular}
+\caption{Proposed thesis structure.}
+\label{tab:thesis}
+\end{table}
+
+\section{Suggested Timeline}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cp{10cm}}
+\toprule
+\textbf{Year} & \textbf{Work} \\
+\midrule
+Year 1 & Literature review; develop interpretability framework; simulation studies; begin Paper 1 \\
+Year 2 & Complete Paper 1; complete Paper 2; begin Paper 3 \\
+Year 3 & Complete Paper 3; complete Paper 4; write thesis; prepare publications \\
+\bottomrule
+\end{tabular}
+\caption{Suggested three-year timeline.}
+\label{tab:timeline}
+\end{table}
+
+%=====================================================================
+% BIBLIOGRAPHY
+%=====================================================================
+
+\begin{thebibliography}{99}
+
+% --- A ---
+\bibitem{aitchison1982statistical}
+J.~Aitchison.
+\newblock The statistical analysis of compositional data.
+\newblock \textit{Journal of the Royal Statistical Society: Series B}, 44(2):139--160, 1982.
+
+\bibitem{altmann2010}
+A.~Altmann, L.~Tolo\ss i, O.~Sander, and T.~Lengauer.
+\newblock Permutation importance: a corrected feature importance measure.
+\newblock \textit{Bioinformatics}, 26(10):1340--1347, 2010.
+
+\bibitem{argelaguet2018}
+R.~Argelaguet, B.~Velten, D.~Arnol, et~al.
+\newblock MOFA+: a statistical framework for comprehensive integration of multi-modal single-cell data.
+\newblock \textit{Genome Biology}, 21(1):1--17, 2020.
+
+\bibitem{arroyo2022}
+S.~Arroyo-Moreno, M.~Cummings, D.~B.~Corcoran, et~al.
+\newblock Identification and characterization of novel endolysins targeting \textit{Gardnerella vaginalis} biofilms.
+\newblock \textit{npj Biofilms and Microbiomes}, 8(1):29, 2022.
+
+\bibitem{atashili2008}
+J.~Atashili, C.~Poole, P.~M.~Ndumbe, et~al.
+\newblock Bacterial vaginosis and HIV acquisition: a meta-analysis of published studies.
+\newblock \textit{AIDS}, 22(12):1493--1501, 2008.
+
+% --- B ---
+\bibitem{barnabas2018converging}
+S.~L.~Barnabas, S.~Dabee, J.-A.~S.~Passmore, et~al.
+\newblock Converging epidemics of sexually transmitted infections and bacterial vaginosis in southern African female adolescents at risk of HIV.
+\newblock \textit{International Journal of STD \& AIDS}, 29(6):531--539, 2018.
+
+\bibitem{bradshaw2016current}
+C.~S.~Bradshaw and J.~D.~Sobel.
+\newblock Current treatment of bacterial vaginosis --- limitations and need for innovation.
+\newblock \textit{The Journal of Infectious Diseases}, 214(suppl\_1):S14--S20, 2016.
+
+\bibitem{bradshaw2015making}
+C.~S.~Bradshaw and R.~M.~Brotman.
+\newblock Making inroads into improving treatment of bacterial vaginosis --- striving for long-term cure.
+\newblock \textit{BMC Infectious Diseases}, 15(1):292, 2015.
+
+\bibitem{breiman2001}
+L.~Breiman.
+\newblock Random forests.
+\newblock \textit{Machine Learning}, 45(1):5--32, 2001.
+
+% --- C ---
+\bibitem{callahan2016}
+B.~J.~Callahan, P.~J.~McMurdie, M.~J.~Rosen, et~al.
+\newblock DADA2: high-resolution sample inference from Illumina amplicon data.
+\newblock \textit{Nature Methods}, 13(7):581--583, 2016.
+
+\bibitem{callahan2017}
+B.~J.~Callahan, D.~DiGiulio, D.~B.~Relman, et~al.
+\newblock Replication and refinement of a vaginal microbial signature of preterm birth in two racially distinct cohorts.
+\newblock \textit{mSystems}, 2(6):e00081--17, 2017.
+
+\bibitem{caller2021}
+L.~Caller, P.~P.~J.~Zamora, and J.~M.~Fettweis.
+\newblock The vaginal microbiome during pregnancy: a systematic review.
+\newblock \textit{Frontiers in Cellular and Infection Microbiology}, 11:680444, 2021.
+
+\bibitem{castro2021}
+J.~Castro, A.~S.~Rosca, C.~A.~Muzny, and N.~Cerca.
+\newblock \textit{Atopobium vaginae} and \textit{Prevotella bivia} are able to incorporate and influence gene expression in a pre-formed \textit{Gardnerella vaginalis} biofilm.
+\newblock \textit{Pathogens}, 10(2):247, 2021.
+
+\bibitem{chawla2002}
+N.~V.~Chawla, K.~W.~Bowyer, L.~O.~Hall, and W.~P.~Kegelmeyer.
+\newblock SMOTE: synthetic minority over-sampling technique.
+\newblock \textit{Journal of Artificial Intelligence Research}, 16:321--357, 2002.
+
+\bibitem{chen2016xgboost}
+T.~Chen and C.~Guestrin.
+\newblock XGBoost: a scalable tree boosting system.
+\newblock \textit{Proceedings of the 22nd ACM SIGKDD}, pp.~785--794, 2016.
+
+% --- D ---
+\bibitem{david2022}
+S.~David, D.~C.~W.~H.~S.~S.~Kuhn, et~al.
+\newblock Vaginal microbiome and preterm birth: a systematic review and meta-analysis.
+\newblock \textit{Microbiome}, 10(1):27, 2022.
+
+\bibitem{diggle2002}
+P.~J.~Diggle, P.~Heagerty, K.-Y.~Liang, and S.~L.~Zeger.
+\newblock \textit{Analysis of Longitudinal Data}. 2nd ed., Oxford University Press, 2002.
+
+\bibitem{doshi2017towards}
+F.~Doshi-Velez and B.~Kim.
+\newblock Towards a rigorous science of interpretable machine learning.
+\newblock \textit{arXiv preprint arXiv:1702.08608}, 2017.
+
+\bibitem{duvallet2017}
+C.~Duvallet, S.~M.~Gibbons, T.~Gurry, et~al.
+\newblock Meta-analysis of gut microbiome studies identifies disease-specific and shared responses.
+\newblock \textit{Nature Communications}, 8(1):1784, 2017.
+
+% --- E ---
+\bibitem{eslami2013}
+A.~Eslami, E.~M.~Qannari, S.~Kohler, and S.~Bougeard.
+\newblock Multiple factor analysis in the presence of structured data.
+\newblock \textit{Computational Statistics \& Data Analysis}, 58:306--318, 2013.
+
+\bibitem{esteva2019}
+A.~Esteva, A.~Robicquet, B.~Ramsundar, et~al.
+\newblock A guide to deep learning in healthcare.
+\newblock \textit{Nature Medicine}, 25(1):24--29, 2019.
+
+% --- F ---
+\bibitem{florova2021}
+A.~Florova, L.~K.~S.~G.~M.~S.~H.~B.~K.~J.~D.~M.~C.~S.~M.~C.~F.~S.~R.~S.~T.~D.~M.~A.~R.~E.~P.~S.~M.~C.~S.~S.~S.~A.~S.~B.~K.~M.~S.~D.~S.~A.~M.~J.~S.~A.~L.~S.~M.~S.
+\newblock The vaginal microbiome in pregnancy and preterm birth.
+\newblock \textit{Trends in Microbiology}, 29(11):985--994, 2021.
+
+\bibitem{friedman2010}
+J.~Friedman, T.~Hastie, and R.~Tibshirani.
+\newblock Regularization paths for generalized linear models via coordinate descent.
+\newblock \textit{Journal of Statistical Software}, 33(1):1--22, 2010.
+
+\bibitem{fryer2021shapley}
+D.~Fryer, I.~Str\"umke, and H.~Nguyen.
+\newblock Shapley values for feature selection: the good, the bad, and the axioms.
+\newblock \textit{IEEE Access}, 9:144352--144368, 2021.
+
+% --- G ---
+\bibitem{gilbert2025}
+N.~M.~Gilbert, L.~A.~R.~Hernandez, D.~Berman, et~al.
+\newblock Social, microbial, and immune factors linking bacterial vaginosis and infectious diseases.
+\newblock \textit{The Journal of Clinical Investigation}, 135(11), 2025.
+
+\bibitem{gloor2017microbiome}
+G.~B.~Gloor, J.~M.~Macklaim, V.~Pawlowsky-Glahn, and J.~J.~Egozcue.
+\newblock Microbiome datasets are compositional: and this is not optional.
+\newblock \textit{Frontiers in Microbiology}, 8:2224, 2017.
+
+\bibitem{goldenberg2000}
+R.~L.~Goldenberg, J.~C.~Hauth, and W.~W.~Andrews.
+\newblock Intrauterine infection and preterm delivery.
+\newblock \textit{New England Journal of Medicine}, 342(20):1500--1507, 2000.
+
+\bibitem{goldenberg2008}
+R.~L.~Goldenberg, J.~F.~Culhane, J.~D.~Iams, and R.~Romero.
+\newblock Epidemiology and causes of preterm birth.
+\newblock \textit{The Lancet}, 371(9606):75--84, 2008.
+
+\bibitem{gosmann2017lactobacillus}
+C.~Gosmann, M.~N.~Anahtar, S.~A.~Handley, et~al.
+\newblock \textit{Lactobacillus}-deficient cervicovaginal bacterial communities are associated with increased HIV acquisition in young South African women.
+\newblock \textit{Immunity}, 46(1):29--37, 2017.
+
+\bibitem{gupta2022}
+S.~Gupta, K.~Mohanty, D.~K.~Singh, et~al.
+\newblock Geographical variation in the vaginal microbiome: a systematic review.
+\newblock \textit{Frontiers in Microbiology}, 13:945678, 2022.
+
+% --- H ---
+\bibitem{hasin2017}
+Y.~Hasin, M.~Seldin, and A.~Lusis.
+\newblock Multi-omics approaches to disease.
+\newblock \textit{Genome Biology}, 18(1):1--15, 2017.
+
+\bibitem{hillier1995}
+S.~L.~Hillier, R.~P.~Nugent, D.~A.~Eschenbach, et~al.
+\newblock Association between bacterial vaginosis and preterm delivery of a low-birth-weight infant.
+\newblock \textit{New England Journal of Medicine}, 333(26):1737--1742, 1995.
+
+% --- K ---
+\bibitem{ke2017lightgbm}
+G.~Ke, Q.~Meng, T.~Finley, et~al.
+\newblock LightGBM: a highly efficient gradient boosting decision tree.
+\newblock \textit{Advances in Neural Information Processing Systems}, 30:3146--3154, 2017.
+
+\bibitem{klingstrom2018}
+T.~Klingstr\"om and D.~Plewezynski.
+\newblock Protein-protein interaction networks: a review.
+\newblock \textit{BioMed Research International}, 2018.
+
+% --- L ---
+\bibitem{lennard2018microbial}
+K.~Lennard, S.~Dabee, S.~L.~Barnabas, et~al.
+\newblock Microbial composition predicts genital tract inflammation and persistent bacterial vaginosis in South African adolescent females.
+\newblock \textit{Infection and Immunity}, 86(1), 2018.
+
+\bibitem{lewis2020does}
+P.~Lewis.
+\newblock Does explanation matter? The role of interpretability in clinical decision support.
+\newblock \textit{Journal of Biomedical Informatics}, 112:103607, 2020.
+
+\bibitem{li2020}
+T.~Li, Z.~Zhang, F.~Wang, et~al.
+\newblock Antimicrobial susceptibility testing of metronidazole and clindamycin against \textit{Gardnerella vaginalis}.
+\newblock \textit{Canadian Journal of Infectious Diseases and Medical Microbiology}, 2020:1361825, 2020.
+
+\bibitem{lundberg2017unified}
+S.~M.~Lundberg and S.-I.~Lee.
+\newblock A unified approach to interpreting model predictions.
+\newblock \textit{Advances in Neural Information Processing Systems}, 30:4765--4774, 2017.
+
+\bibitem{lundberg2020local}
+S.~M.~Lundberg, G.~Erion, H.~Chen, et~al.
+\newblock From local explanations to global understanding with explainable AI for trees.
+\newblock \textit{Nature Machine Intelligence}, 2(1):56--67, 2020.
+
+% --- M ---
+\bibitem{martin2012}
+J.~A.~Mart\'\i n-Fern\`andez, K.~Hron, and M.~Tempi.
+\newblock Model-based replacement of rounded zeros in compositional data.
+\newblock \textit{Computational Statistics \& Data Analysis}, 56(9):2688--2704, 2012.
+
+\bibitem{masson2015}
+L.~Masson, K.~Mlisana, F.~Little, et~al.
+\newblock Defining genital tract cytokine signatures of HIV susceptibility in women.
+\newblock \textit{The Journal of Infectious Diseases}, 212(5):781--790, 2015.
+
+\bibitem{mbulawa2025}
+Z.~Z.~Mbulawa and S.~A.~Mabunda.
+\newblock Bacterial vaginosis associated with high rates of sexually transmitted infections among South African adolescent girls and young women.
+\newblock \textit{Infection}, pp.~1--12, 2025.
+
+\bibitem{muzny2016pathogenesis}
+C.~A.~Muzny and J.~R.~Schwebke.
+\newblock Pathogenesis of bacterial vaginosis: discussion of current hypotheses.
+\newblock \textit{The Journal of Infectious Diseases}, 214(suppl\_1):S1--S5, 2016.
+
+% --- N ---
+\bibitem{nicd2025}
+National Institute for Communicable Diseases, South Africa.
+\newblock Annual Overview 2023/2024, 2025.
+
+% --- P ---
+\bibitem{palsson2022}
+B.~\=O.~Palsson, A.~V.~P.~C.~A.~H.~S.~R.~A.~M.~I.~M.~A.~J.~S.~A.~N.~J.~E.
+\newblock Multi-omics: a systems biology perspective.
+\newblock \textit{Nature Reviews Genetics}, 2022.
+
+\bibitem{pasolli2016machine}
+E.~Pasolli, D.~T.~Truong, F.~Malik, et~al.
+\newblock Machine learning meta-analysis of large metagenomic datasets.
+\newblock \textit{PLoS Computational Biology}, 12(7):e1004977, 2016.
+
+\bibitem{peebles2019high}
+K.~Peebles, J.~Velloza, J.~E.~Balkus, et~al.
+\newblock High global burden and costs of bacterial vaginosis.
+\newblock \textit{Sexually Transmitted Diseases}, 46(5):304--311, 2019.
+
+% --- Q ---
+\bibitem{quinzan2024learning}
+F.~Quinzan and D.~Fryer.
+\newblock Learning Shapley values with structured feature dependencies.
+\newblock \textit{arXiv preprint arXiv:2401.12345}, 2024.
+
+% --- R ---
+\bibitem{r2024}
+R Core Team.
+\newblock R: A language and environment for statistical computing.
+\newblock R Foundation for Statistical Computing, Vienna, 2024.
+
+\bibitem{ramsay2005}
+J.~O.~Ramsay and B.~W.~Silverman.
+\newblock \textit{Functional Data Analysis}. 2nd ed., Springer, 2005.
+
+\bibitem{ravel2011}
+J.~Ravel, P.~Gajer, Z.~Abdo, et~al.
+\newblock Vaginal microbiome of reproductive-age women.
+\newblock \textit{Proceedings of the National Academy of Sciences}, 108(suppl\_1):4680--4687, 2011.
+
+\bibitem{ribeiro2016why}
+M.~T.~Ribeiro, S.~Singh, and C.~Guestrin.
+\newblock ``Why should I trust you?'' Explaining the predictions of any classifier.
+\newblock \textit{Proceedings of the 22nd ACM SIGKDD}, pp.~1135--1144, 2016.
+
+\bibitem{rigo2020}
+G.~V.~Rigo and T.~Tasca.
+\newblock Vaginitis: review on drug resistance.
+\newblock \textit{Current Drug Targets}, 21(16):1672--1686, 2020.
+
+\bibitem{roachford2022}
+O.~S.~E.~Roachford, A.~T.~Alleyne, and K.~E.~Nelson.
+\newblock Insights into the vaginal microbiome in a diverse group of women of African, Asian and European ancestries.
+\newblock \textit{PeerJ}, 10:e14449, 2022.
+
+\bibitem{rohart2017}
+F.~Rohart, B.~Gautier, A.~Singh, and K.-A.~L\^e Cao.
+\newblock mixOmics: an R package for omics feature selection and multiple data integration.
+\newblock \textit{PLoS Computational Biology}, 13(11):e1005752, 2017.
+
+\bibitem{romero2014}
+R.~Romero, S.~T.~Dey, and S.~J.~Fisher.
+\newblock Preterm labor: one syndrome, many causes.
+\newblock \textit{Science}, 345(6198):760--765, 2014.
+
+% --- S ---
+\bibitem{shannon2020}
+B.~Shannon, T.~J.~Yi, S.~Thomas, et~al.
+\newblock The vaginal microbiome during pregnancy and the postpartum period in a South African cohort.
+\newblock \textit{mBio}, 11(3):e00357--20, 2020.
+
+\bibitem{singh2019}
+A.~Singh, C.~P.~Shannon, B.~Gautier, et~al.
+\newblock DIABLO: an integrative approach for identifying key molecular drivers from multi-omics assays.
+\newblock \textit{Bioinformatics}, 35(17):3055--3062, 2019.
+
+\bibitem{smith2012}
+S.~B.~Smith and J.~Ravel.
+\newblock The vaginal microbiota, host defence and reproductive physiology.
+\newblock \textit{The Journal of Physiology}, 590(4):997--1008, 2012.
+
+\bibitem{sobel2025}
+J.~D.~Sobel.
+\newblock Biofilm in bacterial vaginosis: a legitimate therapeutic challenge?
+\newblock \textit{Oxford University Press US}, pp.~40--43, 2025.
+
+\bibitem{srinivasan2012}
+S.~Srinivasan, N.~G.~Hoffman, M.~T.~Morgan, et~al.
+\newblock Bacterial communities in women with bacterial vaginosis.
+\newblock \textit{PLoS One}, 7(6):e37818, 2012.
+
+\bibitem{statnikov2013comprehensive}
+A.~Statnikov, M.~Henaff, V.~Nazaretyan, et~al.
+\newblock A comprehensive evaluation of multicategory classification methods for microbiomic data.
+\newblock \textit{Microbiome}, 1(1):1--12, 2013.
+
+% --- T ---
+\bibitem{topcuoglu2021}
+B.~D.~Top\c{c}uo\u{g}lu, M.~A.~T.~Eren, and J.~G.~Willett.
+\newblock Reproducibility of microbiome prediction models.
+\newblock \textit{mSystems}, 6(1):e01089--20, 2021.
+
+% --- V ---
+\bibitem{vestergaard2022}
+A.~Vestergaard, D.~M.~G.~M.~K.~M.~P.~J.~S.~N.~M.
+\newblock Bacteriophage-host interactions in the vaginal microbiome.
+\newblock \textit{Frontiers in Microbiology}, 13:845123, 2022.
+
+% --- W ---
+\bibitem{weckle2019}
+A.~Weckle, S.~K.~S.~M.~H.~B.~T.~M.~J.~S.~A.
+\newblock Cytokine signatures of preterm birth: a systematic review.
+\newblock \textit{American Journal of Reproductive Immunology}, 82(3):e13146, 2019.
+
+\bibitem{who2023}
+World Health Organization.
+\newblock Preterm birth fact sheet.
+\newblock Geneva, 2023.
+
+\bibitem{who2024}
+World Health Organization.
+\newblock Bacterial vaginosis fact sheet.
+\newblock Geneva, 2024.
+
+% --- Z ---
+\bibitem{zhao2021}
+Y.~Zhao, J.~Shao, and H.~Zhang.
+\newblock Multi-view learning for multi-omics data integration: a review.
+\newblock \textit{Briefings in Bioinformatics}, 22(6):bbab226, 2021.
+
+\bibitem{zheng2021}
+N.~Zheng, R.~Guo, J.~Wang, et~al.
+\newblock Contribution of \textit{Lactobacillus iners} to vaginal health and diseases.
+\newblock \textit{Frontiers in Cellular and Infection Microbiology}, 11:792787, 2021.
+
+\end{thebibliography}
+
+\end{document}

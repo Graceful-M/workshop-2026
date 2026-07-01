@@ -1,0 +1,368 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1800" style="background:#FAFAFA;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<defs>
+  <marker id="a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+    <polygon points="0 0,10 3.5,0 7" fill="#5D6D7E"/>
+  </marker>
+  <filter id="sh" x="-10%" y="-10%" width="125%" height="125%">
+    <feDropShadow dx="1.5" dy="1.5" stdDeviation="2.5" flood-color="#00000022"/>
+  </filter>
+</defs>
+
+<!-- ============ TITLE ============ -->
+<rect x="0" y="0" width="2400" height="85" fill="#1a5276"/>
+<text x="1200" y="40" text-anchor="middle" font-size="28" font-weight="bold" fill="white">Choosing a Statistical Model in Biostatistics</text>
+<text x="1200" y="65" text-anchor="middle" font-size="14" fill="#aed6f1">Start at the top — identify your outcome type, then follow the arrows down.</text>
+
+<!-- ======================================================================== -->
+<!-- CONNECTION LINES -->
+<!-- ======================================================================== -->
+
+<!-- Root → Categories -->
+<path d="M 1200 140 L 400 210" stroke="#5D6D7E" stroke-width="2" fill="none" marker-end="url(#a)"/>
+<path d="M 1200 140 L 1200 210" stroke="#5D6D7E" stroke-width="2" fill="none" marker-end="url(#a)"/>
+<path d="M 1200 140 L 1920 210" stroke="#5D6D7E" stroke-width="2" fill="none" marker-end="url(#a)"/>
+
+<!-- Categories → 2nd-level decisions -->
+<path d="M 400 280 L 240 355" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 400 280 L 610 355" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 1200 280 L 1200 355" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 1920 280 L 1920 355" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- "How many groups?" → 4 columns (col0-col3) -->
+<path d="M 240 420 L 110 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 240 420 L 280 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 240 420 L 450 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 240 420 L 620 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- "Two continuous?" → col4 -->
+<path d="M 610 420 L 820 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Group labels → Assumption diamonds -->
+<path d="M 110 550 L 110 640" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 280 550 L 280 640" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 450 550 L 450 640" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 620 550 L 620 640" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 820 550 L 820 640" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Col 0 (1 group): Normal? → Yes→t-test / No→Wilcoxon -->
+<path d="M 110 710 L 75 790" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 110 710 Q 125 800 110 880" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Col 1 (2 indep): Normal? → No→MannWhitney / Yes→EqualVar -->
+<path d="M 280 710 Q 260 750 245 790" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 280 710 L 330 830" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Equal var → Pooled / Welch -->
+<path d="M 330 882 L 250 950" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 330 882 L 390 950" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Col 2 (2 paired): Diff normal? → Yes→Paired / No→Wilcoxon -->
+<path d="M 450 710 L 415 790" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 450 710 Q 465 800 450 880" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Col 3 (3+ groups): Normal? → Yes→ANOVA / No→Kruskal -->
+<path d="M 620 710 L 585 790" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 620 710 Q 635 800 655 880" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Col 4 (Corr): Linear? → Yes→Pearson / No→DataNormal -->
+<path d="M 820 710 L 785 790" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 820 710 Q 845 780 870 848" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Data normal? (corr) → Spearman / LinearReg -->
+<path d="M 870 894 L 790 1000" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 870 894 L 950 1000" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Binary: "2 groups (2x2)?" → Chi / Fisher -->
+<path d="M 1120 420 L 1000 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 1120 420 L 1180 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Binary: "3+ groups / covariates" → Logistic / Ordinal -->
+<path d="M 1370 420 L 1310 580" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 1370 420 L 1500 580" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- Survival: "Compare groups?" → KM / Cox -->
+<path d="M 1920 420 L 1800 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+<path d="M 1920 420 L 2010 500" stroke="#5D6D7E" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+<!-- ======================================================================== -->
+<!-- EDGE LABELS -->
+<!-- ======================================================================== -->
+<g fill="white" stroke="#BDC3C7" stroke-width="0.5">
+  <!-- Group labels -->
+  <rect x="100" y="460" width="60" height="20" rx="10"/>
+  <rect x="260" y="460" width="60" height="20" rx="10"/>
+  <rect x="430" y="460" width="60" height="20" rx="10"/>
+  <rect x="600" y="460" width="60" height="20" rx="10"/>
+
+  <!-- Yes/No pills -->
+  <rect x="63" y="752" width="44" height="20" rx="10"/>
+  <rect x="105" y="842" width="44" height="20" rx="10"/>
+  <rect x="233" y="752" width="44" height="20" rx="10"/>
+  <rect x="318" y="752" width="44" height="20" rx="10"/>
+  <rect x="238" y="842" width="44" height="20" rx="10"/>
+  <rect x="378" y="842" width="44" height="20" rx="10"/>
+  <rect x="403" y="752" width="44" height="20" rx="10"/>
+  <rect x="445" y="842" width="44" height="20" rx="10"/>
+  <rect x="573" y="752" width="44" height="20" rx="10"/>
+  <rect x="643" y="842" width="44" height="20" rx="10"/>
+  <rect x="773" y="752" width="44" height="20" rx="10"/>
+  <rect x="840" y="752" width="44" height="20" rx="10"/>
+  <rect x="778" y="842" width="44" height="20" rx="10"/>
+  <rect x="938" y="842" width="44" height="20" rx="10"/>
+
+  <!-- Binary pills -->
+  <rect x="1045" y="460" width="56" height="20" rx="10"/>
+  <rect x="1153" y="460" width="56" height="20" rx="10"/>
+  <rect x="1338" y="460" width="56" height="20" rx="10"/>
+  <rect x="1498" y="460" width="56" height="20" rx="10"/>
+
+  <!-- Survival pills -->
+  <rect x="1826" y="460" width="56" height="20" rx="10"/>
+  <rect x="1966" y="460" width="56" height="20" rx="10"/>
+</g>
+
+<g font-size="10" fill="#2C3E50" font-style="italic" text-anchor="middle">
+  <text x="130" y="475">1 group</text>
+  <text x="290" y="475">2 indep.</text>
+  <text x="460" y="475">2 paired</text>
+  <text x="630" y="475">3+ groups</text>
+
+  <text x="85" y="767">Yes</text>
+  <text x="127" y="857">No</text>
+  <text x="255" y="767">No</text>
+  <text x="340" y="767">Yes</text>
+  <text x="260" y="857">Yes</text>
+  <text x="400" y="857">No</text>
+  <text x="425" y="767">Yes</text>
+  <text x="467" y="857">No</text>
+  <text x="595" y="767">Yes</text>
+  <text x="665" y="857">No</text>
+  <text x="795" y="767">Yes</text>
+  <text x="862" y="767">No</text>
+  <text x="800" y="857">No</text>
+  <text x="960" y="857">Yes</text>
+
+  <text x="1073" y="475">Expected ≥5</text>
+  <text x="1181" y="475">Expected &lt;5</text>
+  <text x="1366" y="475">Binary out.</text>
+  <text x="1526" y="475">Ordinal out.</text>
+
+  <text x="1854" y="475">1-2 groups</text>
+  <text x="1994" y="475">3+ / covars</text>
+</g>
+
+<!-- ======================================================================== -->
+<!-- NODES -->
+<!-- ======================================================================== -->
+
+<!-- ============ ROOT ============ -->
+<rect x="1060" y="98" width="280" height="48" rx="24" fill="#1a5276" filter="url(#sh)"/>
+<text x="1200" y="126" text-anchor="middle" font-size="16" font-weight="bold" fill="white">What type of outcome variable?</text>
+
+<!-- ============ OUTCOME CATEGORIES (y=240) ============ -->
+<g transform="translate(400,240)">
+  <rect x="-130" y="-26" width="260" height="52" rx="12" fill="#2980b9" filter="url(#sh)"/>
+  <text x="0" y="-6" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Continuous (Numeric)</text>
+  <text x="0" y="16" text-anchor="middle" font-size="11" fill="#d4e6f1">e.g. blood pressure, weight, lab values</text>
+</g>
+<g transform="translate(1200,240)">
+  <rect x="-135" y="-26" width="270" height="52" rx="12" fill="#c0392b" filter="url(#sh)"/>
+  <text x="0" y="-6" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Binary / Categorical</text>
+  <text x="0" y="16" text-anchor="middle" font-size="11" fill="#fadbd8">e.g. died/alive, yes/no, stage I-IV</text>
+</g>
+<g transform="translate(1920,240)">
+  <rect x="-130" y="-26" width="260" height="52" rx="12" fill="#27ae60" filter="url(#sh)"/>
+  <text x="0" y="-6" text-anchor="middle" font-size="15" font-weight="bold" fill="white">Time-to-Event (Survival)</text>
+  <text x="0" y="16" text-anchor="middle" font-size="11" fill="#a9dfbf">e.g. time to death, time to relapse</text>
+</g>
+
+<!-- ============ SECOND-LEVEL DECISIONS (y=380) ============ -->
+<g transform="translate(240,380)">
+  <rect x="-105" y="-24" width="210" height="48" rx="10" fill="#d4e6f1" filter="url(#sh)"/>
+  <text x="0" y="-4" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a5276">How many groups?</text>
+  <text x="0" y="14" text-anchor="middle" font-size="10" fill="#2C3E50">comparing means across groups</text>
+</g>
+<g transform="translate(610,380)">
+  <rect x="-105" y="-24" width="210" height="48" rx="10" fill="#d4e6f1" filter="url(#sh)"/>
+  <text x="0" y="-4" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">Two continuous variables?</text>
+  <text x="0" y="14" text-anchor="middle" font-size="10" fill="#2C3E50">looking for relationship / prediction</text>
+</g>
+<g transform="translate(1120,380)">
+  <rect x="-100" y="-24" width="200" height="48" rx="10" fill="#fadbd8" filter="url(#sh)"/>
+  <text x="0" y="-4" text-anchor="middle" font-size="13" font-weight="bold" fill="#7B241C">2 groups (2×2 table)?</text>
+  <text x="0" y="14" text-anchor="middle" font-size="10" fill="#7B241C">comparing proportions</text>
+</g>
+<g transform="translate(1370,380)">
+  <rect x="-115" y="-24" width="230" height="48" rx="10" fill="#fadbd8" filter="url(#sh)"/>
+  <text x="0" y="-4" text-anchor="middle" font-size="13" font-weight="bold" fill="#7B241C">3+ groups or covariates?</text>
+  <text x="0" y="14" text-anchor="middle" font-size="10" fill="#7B241C">adjusting for confounders</text>
+</g>
+<g transform="translate(1920,380)">
+  <rect x="-105" y="-24" width="210" height="48" rx="10" fill="#d5f5e3" filter="url(#sh)"/>
+  <text x="0" y="-4" text-anchor="middle" font-size="13" font-weight="bold" fill="#145A32">Compare groups?</text>
+  <text x="0" y="14" text-anchor="middle" font-size="10" fill="#145A32">or estimate survival curve</text>
+</g>
+
+<!-- ============ CONTINUOUS GROUP LABELS (y=520) ============ -->
+<g transform="translate(110,520)">
+  <rect x="-60" y="-20" width="120" height="40" rx="8" fill="#85c1e9" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">1 group</text>
+</g>
+<g transform="translate(280,520)">
+  <rect x="-75" y="-20" width="150" height="40" rx="8" fill="#85c1e9" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">2 groups, independent</text>
+</g>
+<g transform="translate(450,520)">
+  <rect x="-75" y="-20" width="150" height="40" rx="8" fill="#85c1e9" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">2 groups, paired</text>
+</g>
+<g transform="translate(620,520)">
+  <rect x="-60" y="-20" width="120" height="40" rx="8" fill="#85c1e9" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">3+ groups</text>
+</g>
+<g transform="translate(820,520)">
+  <rect x="-90" y="-20" width="180" height="40" rx="8" fill="#85c1e9" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a5276">Correlation / Regression</text>
+</g>
+
+<!-- ============ BINARY MODELS (y=520) ============ -->
+<g transform="translate(1000,520)">
+  <rect x="-80" y="-20" width="160" height="40" rx="10" fill="#f1948a" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="12" font-weight="bold" fill="#7B241C" font-family="monospace">Chi-square test</text>
+</g>
+<g transform="translate(1180,520)">
+  <rect x="-85" y="-20" width="170" height="40" rx="10" fill="#f1948a" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="11" font-weight="bold" fill="#7B241C" font-family="monospace">Fisher\u2019s exact test</text>
+</g>
+
+<!-- ============ BINARY MODELS (y=600, deeper row) ============ -->
+<g transform="translate(1310,600)">
+  <rect x="-85" y="-20" width="170" height="40" rx="10" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="monospace">Logistic regression</text>
+</g>
+<g transform="translate(1500,600)">
+  <rect x="-95" y="-20" width="190" height="40" rx="10" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Ordinal logistic regression</text>
+</g>
+
+<!-- ============ SURVIVAL MODELS (y=520) ============ -->
+<g transform="translate(1800,520)">
+  <rect x="-95" y="-20" width="190" height="40" rx="10" fill="#82e0aa" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="11" font-weight="bold" fill="#145A32" font-family="monospace">Kaplan-Meier + Log-rank</text>
+</g>
+<g transform="translate(2010,520)">
+  <rect x="-100" y="-20" width="200" height="40" rx="10" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="6" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Cox proportional hazards</text>
+</g>
+
+<!-- ============ CONTINUOUS ASSUMPTION DIAMONDS (y=665) ============ -->
+<polygon points="110,641 190,665 110,689 30,665" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="110" y="670" text-anchor="middle" font-size="13" font-weight="bold" fill="#7D6608">Data normal?</text>
+
+<polygon points="280,641 360,665 280,689 200,665" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="280" y="670" text-anchor="middle" font-size="13" font-weight="bold" fill="#7D6608">Data normal?</text>
+
+<polygon points="450,641 540,665 450,689 360,665" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="450" y="670" text-anchor="middle" font-size="12" font-weight="bold" fill="#7D6608">Differences normal?</text>
+
+<polygon points="620,641 700,665 620,689 540,665" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="620" y="670" text-anchor="middle" font-size="13" font-weight="bold" fill="#7D6608">Data normal?</text>
+
+<polygon points="820,641 910,665 820,689 730,665" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="820" y="670" text-anchor="middle" font-size="12" font-weight="bold" fill="#7D6608">Linear relationship?</text>
+
+<!-- ============ DEEPER DIAMONDS ============ -->
+<polygon points="330,828 415,850 330,872 245,850" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="330" y="855" text-anchor="middle" font-size="12" font-weight="bold" fill="#7D6608">Equal variances?</text>
+
+<polygon points="870,848 950,870 870,892 790,870" fill="#f9e79f" stroke="#f4d03f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="870" y="875" text-anchor="middle" font-size="13" font-weight="bold" fill="#7D6608">Data normal?</text>
+
+<!-- ============ CONTINUOUS MODELS ============ -->
+
+<!-- Row 1 (y=810): Quick models -->
+<g transform="translate(75,810)">
+  <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">One-sample t-test</text>
+</g>
+
+<g transform="translate(245,810)">
+  <rect x="-75" y="-18" width="150" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="monospace">Mann-Whitney U test</text>
+</g>
+
+<g transform="translate(415,810)">
+  <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Paired t-test</text>
+</g>
+
+<g transform="translate(585,810)">
+  <rect x="-48" y="-18" width="96" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="14" font-weight="bold" fill="white" font-family="monospace">ANOVA</text>
+</g>
+
+<g transform="translate(785,810)">
+  <rect x="-70" y="-18" width="140" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Pearson correlation</text>
+</g>
+
+<!-- Row 2 (y=900): No-path models -->
+<g transform="translate(110,900)">
+  <rect x="-72" y="-18" width="144" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="monospace">Wilcoxon signed-rank</text>
+</g>
+
+<g transform="translate(450,900)">
+  <rect x="-72" y="-18" width="144" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="monospace">Wilcoxon signed-rank</text>
+</g>
+
+<g transform="translate(655,900)">
+  <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="monospace">Kruskal-Wallis</text>
+</g>
+
+<!-- Row 3 (y=960): Deep models (Equal variances branch) -->
+<g transform="translate(250,960)">
+  <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Pooled t-test</text>
+</g>
+
+<g transform="translate(390,960)">
+  <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Welch\u2019s t-test</text>
+</g>
+
+<!-- Row 4 (y=1020): Deep models (Correlation branch) -->
+<g transform="translate(790,1020)">
+  <rect x="-72" y="-18" width="144" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="10" font-weight="bold" fill="white" font-family="monospace">Spearman correlation</text>
+</g>
+
+<g transform="translate(950,1020)">
+  <rect x="-70" y="-18" width="140" height="36" rx="8" fill="#1b4f72" filter="url(#sh)"/>
+  <text x="0" y="5" text-anchor="middle" font-size="11" font-weight="bold" fill="white" font-family="monospace">Linear regression</text>
+</g>
+
+<!-- ============ LEGEND ============ -->
+<g transform="translate(1700,1100)">
+  <rect x="0" y="0" width="350" height="140" rx="12" fill="white" stroke="#BDC3C7" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="175" y="26" text-anchor="middle" font-size="15" font-weight="bold" fill="#2C3E50">Legend</text>
+  <rect x="20" y="42" width="90" height="22" rx="6" fill="#d4e6f1" stroke="#85c1e9" stroke-width="1"/>
+  <text x="122" y="58" font-size="12" fill="#2C3E50">Question / Decision</text>
+  <rect x="20" y="70" width="90" height="22" rx="6" fill="#1b4f72"/>
+  <text x="122" y="86" font-size="12" fill="white">Statistical model</text>
+  <polygon points="65,108 110,118 65,128 20,118" fill="#f9e79f" stroke="#f4d03f" stroke-width="1"/>
+  <text x="122" y="122" font-size="12" fill="#2C3E50">Assumption check</text>
+</g>
+
+<!-- ============ TIPS BOX ============ -->
+<g transform="translate(60,1100)">
+  <rect x="0" y="0" width="700" height="100" rx="12" fill="#fef9e7" stroke="#f9e79f" stroke-width="2" filter="url(#sh)"/>
+  <text x="350" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#7D6608">Before choosing a model, check these assumptions:</text>
+  <text x="18" y="48" font-size="12" fill="#2C3E50">1.  📊 Normality — Q-Q plot, Shapiro-Wilk test, histogram of residuals</text>
+  <text x="18" y="68" font-size="12" fill="#2C3E50">2.  📊 Homogeneity of variance — Levene\u2019s test, F-test, residual plot</text>
+  <text x="18" y="88" font-size="12" fill="#2C3E50">3.  📊 Sample size — small n (e.g. &lt;30)? Consider non-parametric alternatives</text>
+</g>
+
+</svg>
